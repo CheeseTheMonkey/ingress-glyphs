@@ -3,8 +3,6 @@
 
 from Tkinter import *
 
-width = 1320
-height = 840
 box_width = 110
 box_height = 120
 glyph_height = 90
@@ -583,18 +581,24 @@ def draw_glyph(x, y, canvas, glyph):
     canvas.create_text(x, y+box_height/2, text=glyph['name'], fill='#fff')
 
 master = Tk()
-window = Canvas(master, width=width, height=height)
-vbar=Scrollbar(master, orient=VERTICAL)
+width = master.winfo_screenwidth()
+if width > 1920: width=width/2
+height = master.winfo_screenheight()
+frame = Frame(master,width=width, height=height)
+frame.pack()
+canvas = Canvas(frame, bg='#fff', width=width, height=height)
+vbar=Scrollbar(frame, orient=VERTICAL)
 vbar.pack(side=RIGHT, fill=Y)
-vbar.config(command=window.yview)
-window.config(yscrollcommand=vbar.set)
-
-window.pack(expand=True, fill=Y)
+vbar.config(command=canvas.yview)
+canvas.config(yscrollcommand=vbar.set)
+canvas.pack(expand=True, fill=Y)
 
 c = get_next_coords()
 for g in get_next_glyph():
     x,y = c.next()
-    draw_glyph(x,y,window,g)
+    draw_glyph(x,y,canvas,g)
 
+canvas.config(width=width, height=height, scrollregion=(0,0,width, y+box_height-(glyph_height/2)))
+canvas.pack()
 
 mainloop()
