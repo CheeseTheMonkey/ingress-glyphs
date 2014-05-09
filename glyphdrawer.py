@@ -580,25 +580,46 @@ def draw_glyph(x, y, canvas, glyph):
     # Name the glyph
     canvas.create_text(x, y+box_height/2, text=glyph['name'], fill='#fff')
 
+# Create our main window
 master = Tk()
+
+
 width = master.winfo_screenwidth()
 if width > 1920: width=width/2
 height = master.winfo_screenheight()
+
 frame = Frame(master,width=width, height=height)
 frame.pack()
+
+# Create a canvas to draw on
 canvas = Canvas(frame, bg='#fff', width=width, height=height)
+
+# Add a acrollbar to the frame and bind it to the canvas
 vbar=Scrollbar(frame, orient=VERTICAL)
 vbar.pack(side=RIGHT, fill=Y)
 vbar.config(command=canvas.yview)
-canvas.config(yscrollcommand=vbar.set)
+canvas.config(yscrollcommand=vbar.set, yscrollincrement='20')
 canvas.pack(expand=True, fill=Y)
 
+# Draw all our glyphs
 c = get_next_coords()
 for g in get_next_glyph():
     x,y = c.next()
     draw_glyph(x,y,canvas,g)
 
+# Resize the scrollregion on our canvas now we actually know how big it is
 canvas.config(width=width, height=height, scrollregion=(0,0,width, y+box_height-(glyph_height/2)))
 canvas.pack()
+
+# Bind the scrollwheel to the scrollbar
+def _on_mousewheel(event):
+    if event.num == 5 or event.delta == -120:
+        canvas.yview_scroll(1, UNITS)
+    if event.num == 4 or event.delta == 120:
+        canvas.yview_scroll(-1, UNITS)
+
+canvas.bind('<MouseWheel>', lambda event: _on_mousewheel(event))
+canvas.bind('<Button-4>', lambda event: _on_mousewheel(event))
+canvas.bind('<Button-5>', lambda event: _on_mousewheel(event))
 
 mainloop()
